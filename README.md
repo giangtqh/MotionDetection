@@ -1,10 +1,15 @@
 # MotionDetection
 
-# Create x64 configure
+Traffic motion detection
+
+## Getting Started
+
 Right click on project, click Properties
 Click Configuration Manager, create new configure for x64
 
-# Choose include library
+### Prerequisities
+
+OpenCV2.4.11, VisualStudio 2013
 Under Configuration Properties, select VC++ Directories
 In the right side:
 Include Directories: browse to opencv include folder
@@ -35,3 +40,6 @@ Add these libraries for OpenCV2.4.11
     opencv_videostab2411d.lib
 
 Done.
+
+
+### Installing
