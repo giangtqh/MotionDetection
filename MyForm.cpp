@@ -54,7 +54,7 @@ namespace MotionDetection {
   const std::string kStop = "Stop";
   const std::string kNA = "N/A";
 
-  std::map<int, double> state_map;
+  std::map<std::string, double> state_map;
   std::string traffic_state = "Begin";
 
   struct LessBySecond
@@ -216,7 +216,7 @@ namespace MotionDetection {
     else cout << "Resume processing" << endl;
   }
 
-  int MyForm::Fuzzy(const double& density_est, const double& speed_est)
+  const std::string& MyForm::Fuzzy(const double& density_est, const double& speed_est)
   {
     //double flogic_sp, flogic_ds;
 
@@ -239,11 +239,11 @@ namespace MotionDetection {
     double E = std::max<double>(ds1*sp3, std::max<double>(ds1*sp4, ds2*sp5));
 
     state_map.clear();
-    state_map[1] = A;
-    state_map[2] = B;
-    state_map[3] = C;
-    state_map[4] = D;
-    state_map[5] = E;
+    state_map[kEmpty] = A;
+    state_map[kOpen] = B;
+    state_map[kNormal] = C;
+    state_map[kCrowded] = D;
+    state_map[kStop] = E;
     auto x = std::max_element(state_map.begin(), state_map.end(), LessBySecond());
     return x->first;
   }
@@ -326,8 +326,8 @@ namespace MotionDetection {
       percentage << ds << endl;
       dist << sp << endl;
 
-      std::string new_state = StateToString(Fuzzy(ds, sp));
-      if (new_state.compare(traffic_state) != 0) {
+      std::string new_state = Fuzzy(ds, sp);
+      if (new_state.compare(traffic_state)) {
         traffic_state = new_state;
         txtFuzzy->Text = gcnew System::String(traffic_state.c_str());
       }
@@ -461,6 +461,15 @@ namespace MotionDetection {
     case 5: return kStop;
     default: return kNA;
     }
+  }
+
+  int MyForm::StringToState(const std::string& state) {
+    if (!state.compare(kEmpty)) return 1;
+    else if (!state.compare(kOpen)) return 2;
+    else if (!state.compare(kNormal)) return 3;
+    else if (!state.compare(kCrowded)) return 4;
+    else if (!state.compare(kStop)) return 5;
+    else return 0;
   }
 
 System::Void MyForm::btvOpen_Click(System::Object^  sender, System::EventArgs^  e) {

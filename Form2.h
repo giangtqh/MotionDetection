@@ -164,48 +164,9 @@ namespace MotionDetection {
 
     }
 #pragma endregion
-  private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
-             this->chart1->Series["Speed"]->Points->Clear();
-             this->chart1->Series["Density"]->Points->Clear();
-             this->chart1->Series["State"]->Points->Clear();
-             this->Close();
-  }
-  private: System::Void btDist_Click(System::Object^  sender, System::EventArgs^  e) {
-             cout << "Choose distance file" << endl;
-             openFileDialog1->Filter = "Text Files (*.txt)|*.txt";
-             openFileDialog1->FilterIndex = 2;
-             openFileDialog1->RestoreDirectory = true;
-
-             if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::Cancel) return;
-             char* dist_file = (char*)Marshal::StringToHGlobalAnsi(openFileDialog1->FileName).ToPointer();
-             cout << "Distance file: " << dist_file << endl;
-             std::ifstream dist(dist_file);
-
-             this->chart1->Series["Speed"]->Points->Clear();
-             double ds;
-             while (dist >> ds) {
-               this->chart1->Series["Speed"]->Points->AddY(ds);
-             }
-             dist.close();
-  }
-private: System::Void btPerc_Click(System::Object^  sender, System::EventArgs^  e) {
-           cout << "Choose percentage file" << endl;
-           openFileDialog1->Filter = "Text Files (*.txt)|*.txt";
-           openFileDialog1->FilterIndex = 2;
-           openFileDialog1->RestoreDirectory = true;
-
-           if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::Cancel) return;
-           char* filename = (char*)Marshal::StringToHGlobalAnsi(openFileDialog1->FileName).ToPointer();
-           cout << "Percentage file: " << filename << endl;
-           std::ifstream perc(filename);
-
-           this->chart1->Series["Density"]->Points->Clear();
-           double ds;
-           while (perc >> ds) {
-             this->chart1->Series["Density"]->Points->AddY(ds);
-           }
-           perc.close();
-}
+  private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e);
+  private: System::Void btDist_Click(System::Object^  sender, System::EventArgs^  e);
+private: System::Void btPerc_Click(System::Object^  sender, System::EventArgs^  e);
 private: System::Void btStart_Click(System::Object^  sender, System::EventArgs^  e);
 };
 }

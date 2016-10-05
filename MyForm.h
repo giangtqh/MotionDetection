@@ -46,7 +46,8 @@ namespace MotionDetection {
       //TODO: Add the constructor code here
       //
     }
-    int Fuzzy(const double& density_est, const double& speed_est);
+    int MyForm::StringToState(const std::string& state);
+    const std::string& Fuzzy(const double& density_est, const double& speed_est);
   protected:
     /// <summary>
     /// Clean up any resources being used.
