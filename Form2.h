@@ -28,8 +28,10 @@ namespace MotionDetection {
   private: System::Windows::Forms::DataVisualization::Charting::Chart^  chart1;
   protected:
   private: System::Windows::Forms::Button^  button1;
-  private: System::Windows::Forms::Button^  btPerc;
-  private: System::Windows::Forms::Button^  btDist;
+  private: System::Windows::Forms::Button^  btDensity;
+
+  private: System::Windows::Forms::Button^  btSpeed;
+
 
 
   private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
@@ -49,15 +51,15 @@ namespace MotionDetection {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-      System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-      System::Windows::Forms::DataVisualization::Charting::Legend^  legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-      System::Windows::Forms::DataVisualization::Charting::Series^  series1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
-      System::Windows::Forms::DataVisualization::Charting::Series^  series2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
-      System::Windows::Forms::DataVisualization::Charting::Series^  series3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+      System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+      System::Windows::Forms::DataVisualization::Charting::Legend^  legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+      System::Windows::Forms::DataVisualization::Charting::Series^  series4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+      System::Windows::Forms::DataVisualization::Charting::Series^  series5 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+      System::Windows::Forms::DataVisualization::Charting::Series^  series6 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
       this->chart1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
       this->button1 = (gcnew System::Windows::Forms::Button());
-      this->btPerc = (gcnew System::Windows::Forms::Button());
-      this->btDist = (gcnew System::Windows::Forms::Button());
+      this->btDensity = (gcnew System::Windows::Forms::Button());
+      this->btSpeed = (gcnew System::Windows::Forms::Button());
       this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
       this->btStart = (gcnew System::Windows::Forms::Button());
       this->label1 = (gcnew System::Windows::Forms::Label());
@@ -66,35 +68,35 @@ namespace MotionDetection {
       // 
       // chart1
       // 
-      chartArea1->Name = L"ChartArea1";
-      this->chart1->ChartAreas->Add(chartArea1);
-      legend1->Name = L"Legend1";
-      this->chart1->Legends->Add(legend1);
-      this->chart1->Location = System::Drawing::Point(5, 38);
+      chartArea2->Name = L"ChartArea1";
+      this->chart1->ChartAreas->Add(chartArea2);
+      legend2->Name = L"Legend1";
+      this->chart1->Legends->Add(legend2);
+      this->chart1->Location = System::Drawing::Point(2, 33);
       this->chart1->Name = L"chart1";
-      series1->ChartArea = L"ChartArea1";
-      series1->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
-      series1->Legend = L"Legend1";
-      series1->Name = L"Speed";
-      series1->YValuesPerPoint = 4;
-      series2->ChartArea = L"ChartArea1";
-      series2->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
-      series2->Legend = L"Legend1";
-      series2->Name = L"Density";
-      series3->ChartArea = L"ChartArea1";
-      series3->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::StepLine;
-      series3->Legend = L"Legend1";
-      series3->Name = L"State";
-      this->chart1->Series->Add(series1);
-      this->chart1->Series->Add(series2);
-      this->chart1->Series->Add(series3);
-      this->chart1->Size = System::Drawing::Size(939, 501);
+      series4->ChartArea = L"ChartArea1";
+      series4->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
+      series4->Legend = L"Legend1";
+      series4->Name = L"Speed";
+      series4->YValuesPerPoint = 4;
+      series5->ChartArea = L"ChartArea1";
+      series5->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
+      series5->Legend = L"Legend1";
+      series5->Name = L"Density";
+      series6->ChartArea = L"ChartArea1";
+      series6->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::StepLine;
+      series6->Legend = L"Legend1";
+      series6->Name = L"State";
+      this->chart1->Series->Add(series4);
+      this->chart1->Series->Add(series5);
+      this->chart1->Series->Add(series6);
+      this->chart1->Size = System::Drawing::Size(1180, 630);
       this->chart1->TabIndex = 19;
       this->chart1->Text = L"chart1";
       // 
       // button1
       // 
-      this->button1->Location = System::Drawing::Point(950, 297);
+      this->button1->Location = System::Drawing::Point(1106, 4);
       this->button1->Name = L"button1";
       this->button1->Size = System::Drawing::Size(75, 23);
       this->button1->TabIndex = 20;
@@ -102,25 +104,25 @@ namespace MotionDetection {
       this->button1->UseVisualStyleBackColor = true;
       this->button1->Click += gcnew System::EventHandler(this, &Form2::button1_Click);
       // 
-      // btPerc
+      // btDensity
       // 
-      this->btPerc->Location = System::Drawing::Point(950, 140);
-      this->btPerc->Name = L"btPerc";
-      this->btPerc->Size = System::Drawing::Size(75, 23);
-      this->btPerc->TabIndex = 21;
-      this->btPerc->Text = L"Percentage";
-      this->btPerc->UseVisualStyleBackColor = true;
-      this->btPerc->Click += gcnew System::EventHandler(this, &Form2::btPerc_Click);
+      this->btDensity->Location = System::Drawing::Point(919, 4);
+      this->btDensity->Name = L"btDensity";
+      this->btDensity->Size = System::Drawing::Size(75, 23);
+      this->btDensity->TabIndex = 21;
+      this->btDensity->Text = L"Density";
+      this->btDensity->UseVisualStyleBackColor = true;
+      this->btDensity->Click += gcnew System::EventHandler(this, &Form2::btDensity_Click);
       // 
-      // btDist
+      // btSpeed
       // 
-      this->btDist->Location = System::Drawing::Point(950, 111);
-      this->btDist->Name = L"btDist";
-      this->btDist->Size = System::Drawing::Size(75, 23);
-      this->btDist->TabIndex = 22;
-      this->btDist->Text = L"Distance";
-      this->btDist->UseVisualStyleBackColor = true;
-      this->btDist->Click += gcnew System::EventHandler(this, &Form2::btDist_Click);
+      this->btSpeed->Location = System::Drawing::Point(838, 4);
+      this->btSpeed->Name = L"btSpeed";
+      this->btSpeed->Size = System::Drawing::Size(75, 23);
+      this->btSpeed->TabIndex = 22;
+      this->btSpeed->Text = L"Speed";
+      this->btSpeed->UseVisualStyleBackColor = true;
+      this->btSpeed->Click += gcnew System::EventHandler(this, &Form2::btSpeed_Click);
       // 
       // openFileDialog1
       // 
@@ -128,7 +130,7 @@ namespace MotionDetection {
       // 
       // btStart
       // 
-      this->btStart->Location = System::Drawing::Point(950, 38);
+      this->btStart->Location = System::Drawing::Point(1025, 4);
       this->btStart->Name = L"btStart";
       this->btStart->Size = System::Drawing::Size(75, 23);
       this->btStart->TabIndex = 23;
@@ -139,21 +141,21 @@ namespace MotionDetection {
       // label1
       // 
       this->label1->AutoSize = true;
-      this->label1->Location = System::Drawing::Point(215, 17);
+      this->label1->Location = System::Drawing::Point(364, 9);
       this->label1->Name = L"label1";
-      this->label1->Size = System::Drawing::Size(299, 13);
+      this->label1->Size = System::Drawing::Size(330, 13);
       this->label1->TabIndex = 24;
-      this->label1->Text = L"States: 1-Empty, 2-Open, 3-Normal, 4-Crowded, 5-Stop, 6-N/A";
+      this->label1->Text = L"Traffic states: 1-Empty, 2-Open, 3-Normal, 4-Crowded, 5-Stop, 6-N/A";
       // 
       // Form2
       // 
       this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-      this->ClientSize = System::Drawing::Size(1037, 541);
+      this->ClientSize = System::Drawing::Size(1188, 665);
       this->Controls->Add(this->label1);
       this->Controls->Add(this->btStart);
-      this->Controls->Add(this->btDist);
-      this->Controls->Add(this->btPerc);
+      this->Controls->Add(this->btSpeed);
+      this->Controls->Add(this->btDensity);
       this->Controls->Add(this->button1);
       this->Controls->Add(this->chart1);
       this->Name = L"Form2";
@@ -165,8 +167,8 @@ namespace MotionDetection {
     }
 #pragma endregion
   private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e);
-  private: System::Void btDist_Click(System::Object^  sender, System::EventArgs^  e);
-private: System::Void btPerc_Click(System::Object^  sender, System::EventArgs^  e);
+  private: System::Void btSpeed_Click(System::Object^  sender, System::EventArgs^  e);
+private: System::Void btDensity_Click(System::Object^  sender, System::EventArgs^  e);
 private: System::Void btStart_Click(System::Object^  sender, System::EventArgs^  e);
 };
 }

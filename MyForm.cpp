@@ -35,17 +35,17 @@ namespace MotionDetection {
 
   /* For Fuzzy logic
   */
-  double sp1_ = 0.075;
-  double sp2_ = 0.15;
-  double sp3_ = 0.25;
-  double sp4_ = 0.5;
-  double sp5_ = 0.75;
+  double ksp1 = 0.075;
+  double ksp2 = 0.15;
+  double ksp3 = 0.25;
+  double ksp4 = 0.5;
+  double ksp5 = 0.75;
 
-  double ds1_ = 0.1;
-  double ds2_ = 0.2;
-  double ds3_ = 0.4;
-  double ds4_ = 0.5;
-  double ds5_ = 0.6;
+  double kds1 = 0.1;
+  double kds2 = 0.2;
+  double kds3 = 0.4;
+  double kds4 = 0.5;
+  double kds5 = 0.6;
 
   const std::string kEmpty = "Empty";
   const std::string kOpen = "Open";
@@ -56,6 +56,7 @@ namespace MotionDetection {
 
   std::map<std::string, double> state_map;
   std::string traffic_state = "Begin";
+  Ptr<BackgroundSubtractorMOG2> bgsub;
 
   struct LessBySecond
   {
@@ -65,9 +66,6 @@ namespace MotionDetection {
       return lhs.second < rhs.second;
     }
   };
-
-  //Goi ham Background Subtractor
-  Ptr<BackgroundSubtractorMOG2> bgsub;
 
   // Motion detection function definition
   bool MyForm::ForegroundProcess(const Mat& coarseForeground, Mat& thresholdImage)
@@ -216,34 +214,36 @@ namespace MotionDetection {
     else cout << "Resume processing" << endl;
   }
 
-  const std::string& MyForm::Fuzzy(const double& density_est, const double& speed_est)
+  const std::string& MyForm::Fuzzy(const double& speed_est, const double& density_est)
   {
     //double flogic_sp, flogic_ds;
 
-    double sp1 = std::max<double>(0, std::min<double>(1, (speed_est - sp2_) / (sp1_ - sp2_)));
-    double sp2 = std::max<double>(0, std::min<double>((speed_est - sp1_) / (sp2_ - sp1_), (speed_est - sp3_) / (sp2_ - sp3_)));
-    double sp3 = std::max<double>(0, std::min<double>((speed_est - sp2_) / (sp3_ - sp2_), (speed_est - sp4_) / (sp3_ - sp4_)));
-    double sp4 = std::max<double>(0, std::min<double>((speed_est - sp3_) / (sp4_ - sp3_), (speed_est - sp5_) / (sp4_ - sp5_)));
-    double sp5 = std::max<double>(0, std::min<double>(1, (speed_est - sp4_) / (sp5_ - sp4_)));
+    double flogic_sp1 = std::max<double>(0, std::min<double>(1, (speed_est - ksp2) / (ksp1 - ksp2)));
+    double flogic_sp2 = std::max<double>(0, std::min<double>((speed_est - ksp1) / (ksp2 - ksp1), (speed_est - ksp3) / (ksp2 - ksp3)));
+    double flogic_sp3 = std::max<double>(0, std::min<double>((speed_est - ksp2) / (ksp3 - ksp2), (speed_est - ksp4) / (ksp3 - ksp4)));
+    double flogic_sp4 = std::max<double>(0, std::min<double>((speed_est - ksp3) / (ksp4 - ksp3), (speed_est - ksp5) / (ksp4 - ksp5)));
+    double flogic_sp5 = std::max<double>(0, std::min<double>(1, (speed_est - ksp4) / (ksp5 - ksp4)));
 
-    double ds1 = std::max<double>(0, std::min<double>(1, (density_est - ds2_) / (ds1_ - ds2_)));
-    double ds2 = std::max<double>(0, std::min<double>((density_est - ds1_) / (ds2_ - ds1_), (density_est - ds3_) / (ds2_ - ds3_)));
-    double ds3 = std::max<double>(0, std::min<double>((density_est - ds2_) / (ds3_ - ds2_), (density_est - ds4_) / (ds3_ - ds4_)));
-    double ds4 = std::max<double>(0, std::min<double>((density_est - ds3_) / (ds4_ - ds3_), (density_est - ds5_) / (ds4_ - ds5_)));
-    double ds5 = std::max<double>(0, std::min<double>(1, (density_est - ds4_) / (ds5_ - ds4_)));
+    double flogic_ds1 = std::max<double>(0, std::min<double>(1, (density_est - kds2) / (kds1 - kds2)));
+    double flogic_ds2 = std::max<double>(0, std::min<double>((density_est - kds1) / (kds2 - kds1), (density_est - kds3) / (kds2 - kds3)));
+    double flogic_ds3 = std::max<double>(0, std::min<double>((density_est - kds2) / (kds3 - kds2), (density_est - kds4) / (kds3 - kds4)));
+    double flogic_ds4 = std::max<double>(0, std::min<double>((density_est - kds3) / (kds4 - kds3), (density_est - kds5) / (kds4 - kds5)));
+    double flogic_ds5 = std::max<double>(0, std::min<double>(1, (density_est - kds4) / (kds5 - kds4)));
 
-    double A = std::max<double>(ds1*sp1, std::max<double>(ds1*sp2, ds2*sp1));
-    double B = std::max<double>(std::max<double>(ds5*sp1, std::max<double>(ds3*sp1, ds4*sp1)), std::max<double>(ds4*sp3, std::max<double>(ds5*sp2, ds4*sp2)));
-    double C = std::max<double>(std::max<double>(ds2*sp3, std::max<double>(ds2*sp2, ds3*sp2)), std::max<double>(ds3*sp3, std::max<double>(ds3*sp4, ds4*sp4)));
-    double D = std::max<double>(ds2*sp4, std::max<double>(ds2*sp5, ds3*sp5));
-    double E = std::max<double>(ds1*sp3, std::max<double>(ds1*sp4, ds2*sp5));
+    std::vector<double> vecA{ flogic_ds1*flogic_sp1, flogic_ds1*flogic_sp2, flogic_ds2*flogic_sp1 };
+    std::vector<double> vecB{ flogic_ds1*flogic_sp3, flogic_ds1*flogic_sp4, flogic_ds1*flogic_sp5, flogic_ds2*flogic_sp4, flogic_ds2*flogic_sp5, flogic_ds3*flogic_sp4 };
+    std::vector<double> vecC{ flogic_ds2*flogic_sp2, flogic_ds2*flogic_sp3, flogic_ds3*flogic_sp2, flogic_ds3*flogic_sp3, flogic_ds4*flogic_sp3, flogic_ds4*flogic_sp4 };
+    std::vector<double> vecD{ flogic_ds4*flogic_sp2, flogic_ds5*flogic_sp2, flogic_ds5*flogic_sp3 };
+    std::vector<double> vecE{ flogic_ds3*flogic_sp1, flogic_ds4*flogic_sp1, flogic_ds5*flogic_sp1 };
+    std::vector<double> vecX{ flogic_ds3*flogic_sp5, flogic_ds4*flogic_sp5, flogic_ds5*flogic_sp5, flogic_ds5*flogic_sp4 };
 
     state_map.clear();
-    state_map[kEmpty] = A;
-    state_map[kOpen] = B;
-    state_map[kNormal] = C;
-    state_map[kCrowded] = D;
-    state_map[kStop] = E;
+    state_map[kEmpty] = *std::max_element(vecA.begin(), vecA.end());
+    state_map[kOpen] = *std::max_element(vecB.begin(), vecB.end());
+    state_map[kNormal] = *std::max_element(vecC.begin(), vecC.end());
+    state_map[kCrowded] = *std::max_element(vecD.begin(), vecD.end());
+    state_map[kStop] = *std::max_element(vecE.begin(), vecE.end());
+    //state_map[kNA] = *std::max_element(vecX.begin(), vecX.end());
     auto x = std::max_element(state_map.begin(), state_map.end(), LessBySecond());
     return x->first;
   }
@@ -326,7 +326,7 @@ namespace MotionDetection {
       percentage << ds << endl;
       dist << sp << endl;
 
-      std::string new_state = Fuzzy(ds, sp);
+      std::string new_state = Fuzzy(sp, ds);
       if (new_state.compare(traffic_state)) {
         traffic_state = new_state;
         txtFuzzy->Text = gcnew System::String(traffic_state.c_str());

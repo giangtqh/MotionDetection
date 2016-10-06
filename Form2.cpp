@@ -88,52 +88,52 @@ namespace MotionDetection {
     this->chart1->Series["State"]->Points->Clear();
 
     MyForm mForm;
-    // Convolution and normalize
+    // Convolution
     std::vector<double> ds_tmp = conv(ds_in, gs);
     std::vector<double> sp_tmp = conv(sp_in, gs);
     //cout << "ds_tmp: " << ds_tmp.size() << ", sp_tmp: " << sp_tmp.size() << endl;
 
-    density_max = *std::max_element(ds_tmp.begin(), ds_tmp.end());
-    speed_max = *std::max_element(sp_tmp.begin(), sp_tmp.end());
-    //cout << "density_max: " << density_max << ", speed_max: " << speed_max << endl;
-
-    for (size_t i = 0; i < ds_tmp.size(); ++i) {
-      ds_tmp[i] = ds_tmp[i] / (gs_sum * density_max);
-    }
-    for (size_t i = 0; i < sp_tmp.size(); ++i) {
-      sp_tmp[i] = sp_tmp[i] / (gs_sum * speed_max);
-    }
     // Get center part
     std::vector<double> ds_out;
     if (ds_in.size() % 2 != 0) {
       for (size_t i = (gs.size() - 1) / 2 + 1; i < ds_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        ds_out.push_back(ds_tmp[i]);
+        ds_out.push_back(ds_tmp[i] / gs_sum);
       }
     }
     else {
       for (size_t i = (gs.size() - 1) / 2; i < ds_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        ds_out.push_back(ds_tmp[i]);
+        ds_out.push_back(ds_tmp[i] / gs_sum);
       }
     }
     std::vector<double> sp_out;
     if (sp_in.size() % 2 != 0) {
       for (size_t i = (gs.size() - 1) / 2 + 1; i < sp_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        sp_out.push_back(sp_tmp[i]);
+        sp_out.push_back(sp_tmp[i] / gs_sum);
       }
     }
     else {
       for (size_t i = (gs.size() - 1) / 2; i < sp_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        sp_out.push_back(sp_tmp[i]);
+        sp_out.push_back(sp_tmp[i] / gs_sum);
       }
     }
-    //cout << "ds_out: " << ds_out.size() << ", sp_out: " << sp_out.size() << endl;
+    // Normalize
+    density_max = *std::max_element(ds_out.begin(), ds_out.end());
+    speed_max = *std::max_element(sp_out.begin(), sp_out.end());
+    //cout << "density_max: " << density_max << ", speed_max: " << speed_max << endl;
+
+    for (size_t i = 0; i < ds_tmp.size(); ++i) {
+      ds_tmp[i] = ds_tmp[i] / density_max;
+    }
+    for (size_t i = 0; i < sp_tmp.size(); ++i) {
+      sp_tmp[i] = sp_tmp[i] / speed_max;
+    }
 
     // Apply Fuzzy
     for (size_t i = 0; i < ds_out.size(); ++i) {
-      int new_state = mForm.StringToState(mForm.Fuzzy(ds_out[i], sp_out[i]));
+      int new_state = mForm.StringToState(mForm.Fuzzy(sp_out[i], ds_out[i]));
       if (new_state != old_state) {
         old_state = new_state;
-        this->chart1->Series["State"]->Points->AddXY(i, new_state);
+        this->chart1->Series["State"]->Points->AddXY(i, old_state);
       }
       this->chart1->Series["Density"]->Points->AddY(ds_out[i]);
       this->chart1->Series["Speed"]->Points->AddY(sp_out[i]);
@@ -150,8 +150,8 @@ System::Void Form2::button1_Click(System::Object^  sender, System::EventArgs^  e
   //cout << "ds_in: " << ds_in.size() << ", sp_in: " << sp_in.size() << endl;
   this->Close();
 }
-System::Void Form2::btDist_Click(System::Object^  sender, System::EventArgs^  e) {
-  cout << "Choose distance file" << endl;
+System::Void Form2::btSpeed_Click(System::Object^  sender, System::EventArgs^  e) {
+  cout << "Choose Distance file" << endl;
   openFileDialog1->Filter = "Text Files (*.txt)|*.txt";
   openFileDialog1->FilterIndex = 2;
   openFileDialog1->RestoreDirectory = true;
@@ -160,15 +160,17 @@ System::Void Form2::btDist_Click(System::Object^  sender, System::EventArgs^  e)
   char* dist_file = (char*)Marshal::StringToHGlobalAnsi(openFileDialog1->FileName).ToPointer();
   cout << "Distance file: " << dist_file << endl;
   std::ifstream dist(dist_file);
-
-  this->chart1->Series["Speed"]->Points->Clear();
-  double ds;
-  while (dist >> ds) {
-    this->chart1->Series["Speed"]->Points->AddY(ds);
+  sp_in.clear();
+  double sp;
+  if (dist) {
+    while (dist >> sp) {
+      sp_in.push_back(sp);
+    }
   }
+  
   dist.close();
 }
-System::Void Form2::btPerc_Click(System::Object^  sender, System::EventArgs^  e) {
+System::Void Form2::btDensity_Click(System::Object^  sender, System::EventArgs^  e) {
   cout << "Choose percentage file" << endl;
   openFileDialog1->Filter = "Text Files (*.txt)|*.txt";
   openFileDialog1->FilterIndex = 2;
@@ -178,11 +180,12 @@ System::Void Form2::btPerc_Click(System::Object^  sender, System::EventArgs^  e)
   char* filename = (char*)Marshal::StringToHGlobalAnsi(openFileDialog1->FileName).ToPointer();
   cout << "Percentage file: " << filename << endl;
   std::ifstream perc(filename);
-
-  this->chart1->Series["Density"]->Points->Clear();
+  ds_in.clear();
   double ds;
-  while (perc >> ds) {
-    this->chart1->Series["Density"]->Points->AddY(ds);
+  if (perc) {
+    while (perc >> ds) {
+      ds_in.push_back(ds);
+    }
   }
   perc.close();
 }
