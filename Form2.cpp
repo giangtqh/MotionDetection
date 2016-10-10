@@ -12,9 +12,9 @@ namespace MotionDetection {
   std::vector<double> ds_in;
   std::vector<double> sp_in;
   //these two parameters need to be verified
-  double density_max = 0;
-  double speed_max = 0;
-  int old_state = 0;
+  extern double density_max;
+  extern double speed_max;
+  int old_state = -1;
 
   void genGs() {
     for (int i = -fil_length; i <= fil_length; ++i) {
@@ -46,6 +46,7 @@ namespace MotionDetection {
     //
     //TODO: Add the constructor code here
     //
+    cout << "Defined density_max: " << density_max << ", speed_max: " << speed_max << endl;
     std::ifstream speed("distance.txt");
     std::ifstream density("percentage.txt");
     ds_in.clear();
@@ -55,19 +56,22 @@ namespace MotionDetection {
     double sp, ds;
     if (speed) {
       while (speed >> sp) {
-        ds_in.push_back(sp);
+        sp_in.push_back(sp);
       }
     }
     speed.close();
     if (density) {
       while (density >> ds) {
-        sp_in.push_back(ds);
+        ds_in.push_back(ds);
       }
     }
     density.close();
+    double ds_max = *std::max_element(ds_in.begin(), ds_in.end());
+    double sp_max = *std::max_element(sp_in.begin(), sp_in.end());
+    cout << "Origin max value, ds_max = " << ds_max << ", sp_max = " << sp_max << endl;
     gs.clear();
     genGs();
-    gs_sum = std::accumulate(gs.begin(), gs.end(), 0LL);
+    gs_sum = std::accumulate(gs.begin(), gs.end(), 0.0);
   }
   Form2::~Form2()
   {
@@ -91,46 +95,48 @@ namespace MotionDetection {
     // Convolution
     std::vector<double> ds_tmp = conv(ds_in, gs);
     std::vector<double> sp_tmp = conv(sp_in, gs);
-    //cout << "ds_tmp: " << ds_tmp.size() << ", sp_tmp: " << sp_tmp.size() << endl;
 
     // Get center part
     std::vector<double> ds_out;
-    if (ds_in.size() % 2 != 0) {
-      for (size_t i = (gs.size() - 1) / 2 + 1; i < ds_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        ds_out.push_back(ds_tmp[i] / gs_sum);
-      }
-    }
-    else {
-      for (size_t i = (gs.size() - 1) / 2; i < ds_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        ds_out.push_back(ds_tmp[i] / gs_sum);
-      }
-    }
     std::vector<double> sp_out;
-    if (sp_in.size() % 2 != 0) {
-      for (size_t i = (gs.size() - 1) / 2 + 1; i < sp_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        sp_out.push_back(sp_tmp[i] / gs_sum);
-      }
+    //if (ds_in.size() % 2 != 0) {
+    //  for (size_t i = (gs.size() - 1) / 2 + 1; i < ds_tmp.size() - (gs.size() - 1) / 2; ++i) {
+    //    ds_out.push_back(ds_tmp[i] / gs_sum);
+    //    sp_out.push_back(sp_tmp[i] / gs_sum);
+    //  }
+    //}
+    //else {
+    //  for (size_t i = (gs.size() - 1) / 2; i < ds_tmp.size() - (gs.size() - 1) / 2; ++i) {
+    //    ds_out.push_back(ds_tmp[i] / gs_sum);
+    //    sp_out.push_back(sp_tmp[i] / gs_sum);
+    //  }
+    //}
+    int m = ds_tmp.size();
+    int n = ds_in.size();
+    for (size_t i = 0; i < m; ++i) {
+       if (n % 2 != 0) {
+          if ((i < (m - n) / 2) || (i >(m + n) / 2)) continue;
+       } else if ((i < (m - n) / 2) || (i >= (m + n) / 2)) continue;
+       ds_out.push_back(ds_tmp[i] / gs_sum);
+       sp_out.push_back(sp_tmp[i] / gs_sum);
     }
-    else {
-      for (size_t i = (gs.size() - 1) / 2; i < sp_tmp.size() - (gs.size() - 1) / 2; ++i) {
-        sp_out.push_back(sp_tmp[i] / gs_sum);
-      }
-    }
-    // Normalize
-    density_max = *std::max_element(ds_out.begin(), ds_out.end());
-    speed_max = *std::max_element(sp_out.begin(), sp_out.end());
-    //cout << "density_max: " << density_max << ", speed_max: " << speed_max << endl;
 
-    for (size_t i = 0; i < ds_tmp.size(); ++i) {
-      ds_tmp[i] = ds_tmp[i] / density_max;
+    double sp_max_estimate = *std::max_element(sp_out.begin(), sp_out.end());
+
+    // Normalize
+    //double ds_max = *std::max_element(ds_out.begin(), ds_out.end());
+    //double sp_max = *std::max_element(sp_out.begin(), sp_out.end());
+    //cout << "ds_max: " << ds_max << ", sp_max: " << sp_max << endl;
+    for (size_t i = 0; i < ds_out.size(); ++i) {
+       ds_out[i] = ds_out[i] / density_max;
     }
-    for (size_t i = 0; i < sp_tmp.size(); ++i) {
-      sp_tmp[i] = sp_tmp[i] / speed_max;
+    for (size_t i = 0; i < sp_out.size(); ++i) {
+       sp_out[i] = sp_out[i] / speed_max;
     }
 
     // Apply Fuzzy
     for (size_t i = 0; i < ds_out.size(); ++i) {
-      int new_state = mForm.StringToState(mForm.Fuzzy(sp_out[i], ds_out[i]));
+      int new_state = mForm.Fuzzy(sp_out[i], ds_out[i]);
       if (new_state != old_state) {
         old_state = new_state;
         this->chart1->Series["State"]->Points->AddXY(i, old_state);
@@ -138,6 +144,9 @@ namespace MotionDetection {
       this->chart1->Series["Density"]->Points->AddY(ds_out[i]);
       this->chart1->Series["Speed"]->Points->AddY(sp_out[i]);
     }
+    //cout << "Size of: ds_in: " << ds_in.size() << ", ds_out.size= " << ds_out.size() << endl;
+    //cout << "Size of: sp_in: " << sp_in.size() << ", sp_out.size= " << sp_out.size() << endl;
+    cout << "Estimate speed max: " << sp_max_estimate << endl;
   }
 
 System::Void Form2::button1_Click(System::Object^  sender, System::EventArgs^  e) {
