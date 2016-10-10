@@ -47,6 +47,9 @@ namespace MotionDetection {
   double kds4 = 0.5;
   double kds5 = 0.6;
 
+  double density_max = 100;
+  double speed_max = 35;
+
   const std::string kEmpty = "Empty";
   const std::string kOpen = "Open";
   const std::string kNormal = "Normal";
@@ -54,7 +57,6 @@ namespace MotionDetection {
   const std::string kStop = "Stop";
   const std::string kNA = "N/A";
 
-  std::map<std::string, double> state_map;
   std::string traffic_state = "Begin";
   Ptr<BackgroundSubtractorMOG2> bgsub;
 
@@ -214,38 +216,55 @@ namespace MotionDetection {
     else cout << "Resume processing" << endl;
   }
 
-  const std::string& MyForm::Fuzzy(const double& speed_est, const double& density_est)
+  void printVec(const std::vector<double> vec) {
+     for (auto const& x : vec) {
+        cout << x <<" ";
+     }
+     cout << endl;
+  }
+
+  int MyForm::Fuzzy(const double& speed_est, const double& density_est)
   {
-    //double flogic_sp, flogic_ds;
+    //cout << "speed_est: " << speed_est << ", density_est: " << density_est << endl;
+    double fsp1 = std::max<double>(0, std::min<double>(1, (speed_est - ksp2) / (ksp1 - ksp2)));
+    double fsp2 = std::max<double>(0, std::min<double>((speed_est - ksp1) / (ksp2 - ksp1), (speed_est - ksp3) / (ksp2 - ksp3)));
+    double fsp3 = std::max<double>(0, std::min<double>((speed_est - ksp2) / (ksp3 - ksp2), (speed_est - ksp4) / (ksp3 - ksp4)));
+    double fsp4 = std::max<double>(0, std::min<double>((speed_est - ksp3) / (ksp4 - ksp3), (speed_est - ksp5) / (ksp4 - ksp5)));
+    double fsp5 = std::max<double>(0, std::min<double>(1, (speed_est - ksp4) / (ksp5 - ksp4)));
+    //cout << fsp1 << " " << fsp2 << " " << fsp3 << " " << fsp4 << " " << fsp5 << endl;
 
-    double flogic_sp1 = std::max<double>(0, std::min<double>(1, (speed_est - ksp2) / (ksp1 - ksp2)));
-    double flogic_sp2 = std::max<double>(0, std::min<double>((speed_est - ksp1) / (ksp2 - ksp1), (speed_est - ksp3) / (ksp2 - ksp3)));
-    double flogic_sp3 = std::max<double>(0, std::min<double>((speed_est - ksp2) / (ksp3 - ksp2), (speed_est - ksp4) / (ksp3 - ksp4)));
-    double flogic_sp4 = std::max<double>(0, std::min<double>((speed_est - ksp3) / (ksp4 - ksp3), (speed_est - ksp5) / (ksp4 - ksp5)));
-    double flogic_sp5 = std::max<double>(0, std::min<double>(1, (speed_est - ksp4) / (ksp5 - ksp4)));
+    double fds1 = std::max<double>(0, std::min<double>(1, (density_est - kds2) / (kds1 - kds2)));
+    double fds2 = std::max<double>(0, std::min<double>((density_est - kds1) / (kds2 - kds1), (density_est - kds3) / (kds2 - kds3)));
+    double fds3 = std::max<double>(0, std::min<double>((density_est - kds2) / (kds3 - kds2), (density_est - kds4) / (kds3 - kds4)));
+    double fds4 = std::max<double>(0, std::min<double>((density_est - kds3) / (kds4 - kds3), (density_est - kds5) / (kds4 - kds5)));
+    double fds5 = std::max<double>(0, std::min<double>(1, (density_est - kds4) / (kds5 - kds4)));
+    //cout << fds1 << " " << fds2 << " " << fds3 << " " << fds4 << " " << fds5 << endl;
 
-    double flogic_ds1 = std::max<double>(0, std::min<double>(1, (density_est - kds2) / (kds1 - kds2)));
-    double flogic_ds2 = std::max<double>(0, std::min<double>((density_est - kds1) / (kds2 - kds1), (density_est - kds3) / (kds2 - kds3)));
-    double flogic_ds3 = std::max<double>(0, std::min<double>((density_est - kds2) / (kds3 - kds2), (density_est - kds4) / (kds3 - kds4)));
-    double flogic_ds4 = std::max<double>(0, std::min<double>((density_est - kds3) / (kds4 - kds3), (density_est - kds5) / (kds4 - kds5)));
-    double flogic_ds5 = std::max<double>(0, std::min<double>(1, (density_est - kds4) / (kds5 - kds4)));
+    std::vector<double> vecA{ fds1*fsp1, fds1*fsp2, fds2*fsp1 };
+    std::vector<double> vecB{ fds1*fsp3, fds1*fsp4, fds1*fsp5, fds2*fsp4, fds2*fsp5, fds3*fsp4 };
+    std::vector<double> vecC{ fds2*fsp2, fds2*fsp3, fds3*fsp2, fds3*fsp3, fds4*fsp3, fds4*fsp4 };
+    std::vector<double> vecD{ fds4*fsp2, fds5*fsp2, fds5*fsp3 };
+    std::vector<double> vecE{ fds3*fsp1, fds4*fsp1, fds5*fsp1 };
+    std::vector<double> vecX{ fds3*fsp5, fds4*fsp5, fds5*fsp5, fds5*fsp4 };
+    //cout << "Element of vectors: " << endl;
+    //printVec(vecA);
+    //printVec(vecB);
+    //printVec(vecC);
+    //printVec(vecD);
+    //printVec(vecE);
+    //printVec(vecX);
 
-    std::vector<double> vecA{ flogic_ds1*flogic_sp1, flogic_ds1*flogic_sp2, flogic_ds2*flogic_sp1 };
-    std::vector<double> vecB{ flogic_ds1*flogic_sp3, flogic_ds1*flogic_sp4, flogic_ds1*flogic_sp5, flogic_ds2*flogic_sp4, flogic_ds2*flogic_sp5, flogic_ds3*flogic_sp4 };
-    std::vector<double> vecC{ flogic_ds2*flogic_sp2, flogic_ds2*flogic_sp3, flogic_ds3*flogic_sp2, flogic_ds3*flogic_sp3, flogic_ds4*flogic_sp3, flogic_ds4*flogic_sp4 };
-    std::vector<double> vecD{ flogic_ds4*flogic_sp2, flogic_ds5*flogic_sp2, flogic_ds5*flogic_sp3 };
-    std::vector<double> vecE{ flogic_ds3*flogic_sp1, flogic_ds4*flogic_sp1, flogic_ds5*flogic_sp1 };
-    std::vector<double> vecX{ flogic_ds3*flogic_sp5, flogic_ds4*flogic_sp5, flogic_ds5*flogic_sp5, flogic_ds5*flogic_sp4 };
-
-    state_map.clear();
-    state_map[kEmpty] = *std::max_element(vecA.begin(), vecA.end());
-    state_map[kOpen] = *std::max_element(vecB.begin(), vecB.end());
-    state_map[kNormal] = *std::max_element(vecC.begin(), vecC.end());
-    state_map[kCrowded] = *std::max_element(vecD.begin(), vecD.end());
-    state_map[kStop] = *std::max_element(vecE.begin(), vecE.end());
-    //state_map[kNA] = *std::max_element(vecX.begin(), vecX.end());
-    auto x = std::max_element(state_map.begin(), state_map.end(), LessBySecond());
-    return x->first;
+    double A = *std::max_element(vecA.begin(), vecA.end());
+    double B = *std::max_element(vecB.begin(), vecB.end());
+    double C = *std::max_element(vecC.begin(), vecC.end());
+    double D = *std::max_element(vecD.begin(), vecD.end());
+    double E = *std::max_element(vecE.begin(), vecE.end());
+    double X = *std::max_element(vecX.begin(), vecX.end());
+    std::vector<double> vec_max{ A, B, C, D, E, X};
+    auto max_value = std::max_element(vec_max.begin(), vec_max.end());
+    //cout << "Max of each vector, A: " << A << ",B: " << B << ",C :" << C << ",D: " << D << ", E: " << E << endl;
+    //cout << "MAX of max: " << *max_value << endl;
+    return std::distance(std::begin(vec_max), max_value);
   }
 
   void MyForm::motion_processing()
@@ -325,11 +344,25 @@ namespace MotionDetection {
       // Write values to file
       percentage << ds << endl;
       dist << sp << endl;
+      //if (density_max < ds) density_max = ds;
+      //if (speed_max < sp) speed_max = sp;
+      double ds_normalize = ds / density_max;
+      double sp_normalize = sp / speed_max;
 
-      std::string new_state = Fuzzy(sp, ds);
-      if (new_state.compare(traffic_state)) {
+      std::string new_state = StateToString(Fuzzy(sp_normalize, ds_normalize));
+      static int count = 0;
+      ++count;
+      if (new_state.compare(traffic_state)) {   //state change
+         //cout << "State changed: " << traffic_state << " -> " << new_state << " at frame: " << frame_count << endl;
+         count = 0;
         traffic_state = new_state;
-        txtFuzzy->Text = gcnew System::String(traffic_state.c_str());
+        //txtFuzzy->Text = gcnew System::String(traffic_state.c_str());
+      }
+      
+      if (2 == count) {
+         count = 0;
+         //traffic_state = new_state;
+         txtFuzzy->Text = gcnew System::String(traffic_state.c_str());
       }
 
       if (gIsSaveFrame)
@@ -454,11 +487,11 @@ namespace MotionDetection {
   const std::string& MyForm::StateToString(int state) {
     switch (state)
     {
-    case 1: return kEmpty;
-    case 2: return kOpen;
-    case 3: return kNormal;
-    case 4: return kCrowded;
-    case 5: return kStop;
+    case 0: return kEmpty;
+    case 1: return kOpen;
+    case 2: return kNormal;
+    case 3: return kCrowded;
+    case 4: return kStop;
     default: return kNA;
     }
   }
