@@ -73,7 +73,7 @@ namespace MotionDetection {
       legend1->Name = L"Legend1";
       this->chart1->Legends->Add(legend1);
       this->chart1->Location = System::Drawing::Point(3, 41);
-      this->chart1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->chart1->Margin = System::Windows::Forms::Padding(4);
       this->chart1->Name = L"chart1";
       series1->ChartArea = L"ChartArea1";
       series1->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
@@ -91,14 +91,14 @@ namespace MotionDetection {
       this->chart1->Series->Add(series1);
       this->chart1->Series->Add(series2);
       this->chart1->Series->Add(series3);
-      this->chart1->Size = System::Drawing::Size(1573, 775);
+      this->chart1->Size = System::Drawing::Size(1302, 661);
       this->chart1->TabIndex = 19;
       this->chart1->Text = L"chart1";
       // 
       // button1
       // 
-      this->button1->Location = System::Drawing::Point(1475, 5);
-      this->button1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->button1->Location = System::Drawing::Point(1205, 5);
+      this->button1->Margin = System::Windows::Forms::Padding(4);
       this->button1->Name = L"button1";
       this->button1->Size = System::Drawing::Size(100, 28);
       this->button1->TabIndex = 20;
@@ -108,8 +108,8 @@ namespace MotionDetection {
       // 
       // btDensity
       // 
-      this->btDensity->Location = System::Drawing::Point(1225, 5);
-      this->btDensity->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->btDensity->Location = System::Drawing::Point(955, 5);
+      this->btDensity->Margin = System::Windows::Forms::Padding(4);
       this->btDensity->Name = L"btDensity";
       this->btDensity->Size = System::Drawing::Size(100, 28);
       this->btDensity->TabIndex = 21;
@@ -119,8 +119,8 @@ namespace MotionDetection {
       // 
       // btSpeed
       // 
-      this->btSpeed->Location = System::Drawing::Point(1117, 5);
-      this->btSpeed->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->btSpeed->Location = System::Drawing::Point(847, 5);
+      this->btSpeed->Margin = System::Windows::Forms::Padding(4);
       this->btSpeed->Name = L"btSpeed";
       this->btSpeed->Size = System::Drawing::Size(100, 28);
       this->btSpeed->TabIndex = 22;
@@ -134,8 +134,8 @@ namespace MotionDetection {
       // 
       // btStart
       // 
-      this->btStart->Location = System::Drawing::Point(1367, 5);
-      this->btStart->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->btStart->Location = System::Drawing::Point(1097, 5);
+      this->btStart->Margin = System::Windows::Forms::Padding(4);
       this->btStart->Name = L"btStart";
       this->btStart->Size = System::Drawing::Size(100, 28);
       this->btStart->TabIndex = 23;
@@ -146,7 +146,7 @@ namespace MotionDetection {
       // label1
       // 
       this->label1->AutoSize = true;
-      this->label1->Location = System::Drawing::Point(485, 11);
+      this->label1->Location = System::Drawing::Point(235, 11);
       this->label1->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
       this->label1->Name = L"label1";
       this->label1->Size = System::Drawing::Size(442, 17);
@@ -157,14 +157,14 @@ namespace MotionDetection {
       // 
       this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-      this->ClientSize = System::Drawing::Size(1584, 818);
+      this->ClientSize = System::Drawing::Size(1308, 700);
       this->Controls->Add(this->label1);
       this->Controls->Add(this->btStart);
       this->Controls->Add(this->btSpeed);
       this->Controls->Add(this->btDensity);
       this->Controls->Add(this->button1);
       this->Controls->Add(this->chart1);
-      this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"Form2";
       this->Text = L"Graph";
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chart1))->EndInit();
