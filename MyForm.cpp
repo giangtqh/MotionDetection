@@ -119,6 +119,7 @@ namespace MotionDetection {
   double MyForm::calcDistance(const Mat& flow, Mat& cflowmap, int step)
   {
     double distance = 0, sum = 0;
+	int cnt = 0;
     for (int y = 0; y < cflowmap.rows; y += step)
     {
       for (int x = 0; x < cflowmap.cols; x += step)
@@ -126,9 +127,10 @@ namespace MotionDetection {
         const Point2f& fxy = flow.at<Point2f>(y, x);
         distance = sqrt(fxy.x*fxy.x + fxy.y*fxy.y);
         sum += distance;
+		cnt++;
       }
     }
-    return((double)sum / (step*step));
+    return((double)sum / (cnt));
   }
 
   double MyForm::PixelPercentage(const Mat& img)
