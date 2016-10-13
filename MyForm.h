@@ -76,13 +76,14 @@ namespace MotionDetection {
   private: System::Windows::Forms::Button^  btvStart;
 
   private: System::Windows::Forms::OpenFileDialog^  dlgOpenVideo;
+  private: System::Windows::Forms::Button^  btPause;
 
-  private: System::Windows::Forms::Button^  btStop;
+
   private: System::Windows::Forms::CheckBox^  ckbox_sFrame;
   private: System::Windows::Forms::Timer^  timer1;
   private: System::Windows::Forms::Button^  btMask;
   private: System::Windows::Forms::OpenFileDialog^  dialogOpenMask;
-  private: System::Windows::Forms::Button^  btResume;
+
 
   private: System::Windows::Forms::TextBox^  txtFuzzy;
   private: System::Windows::Forms::Button^  btLoadChart;
@@ -127,12 +128,11 @@ namespace MotionDetection {
       this->picInput = (gcnew System::Windows::Forms::PictureBox());
       this->btvStart = (gcnew System::Windows::Forms::Button());
       this->dlgOpenVideo = (gcnew System::Windows::Forms::OpenFileDialog());
-      this->btStop = (gcnew System::Windows::Forms::Button());
+      this->btPause = (gcnew System::Windows::Forms::Button());
       this->ckbox_sFrame = (gcnew System::Windows::Forms::CheckBox());
       this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
       this->btMask = (gcnew System::Windows::Forms::Button());
       this->dialogOpenMask = (gcnew System::Windows::Forms::OpenFileDialog());
-      this->btResume = (gcnew System::Windows::Forms::Button());
       this->txtFuzzy = (gcnew System::Windows::Forms::TextBox());
       this->btLoadChart = (gcnew System::Windows::Forms::Button());
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picOutput))->BeginInit();
@@ -144,11 +144,11 @@ namespace MotionDetection {
       // btvOpen
       // 
       this->btvOpen->Location = System::Drawing::Point(921, 37);
-      this->btvOpen->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->btvOpen->Margin = System::Windows::Forms::Padding(4);
       this->btvOpen->Name = L"btvOpen";
       this->btvOpen->Size = System::Drawing::Size(100, 36);
       this->btvOpen->TabIndex = 0;
-      this->btvOpen->Text = L"Open";
+      this->btvOpen->Text = L"Open Video";
       this->btvOpen->UseVisualStyleBackColor = true;
       this->btvOpen->Click += gcnew System::EventHandler(this, &MyForm::btvOpen_Click);
       // 
@@ -206,7 +206,7 @@ namespace MotionDetection {
       // 
       this->picOutput->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
       this->picOutput->Location = System::Drawing::Point(465, 334);
-      this->picOutput->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->picOutput->Margin = System::Windows::Forms::Padding(4);
       this->picOutput->Name = L"picOutput";
       this->picOutput->Size = System::Drawing::Size(426, 295);
       this->picOutput->TabIndex = 3;
@@ -216,7 +216,7 @@ namespace MotionDetection {
       // 
       this->picFg->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
       this->picFg->Location = System::Drawing::Point(16, 334);
-      this->picFg->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->picFg->Margin = System::Windows::Forms::Padding(4);
       this->picFg->Name = L"picFg";
       this->picFg->Size = System::Drawing::Size(426, 295);
       this->picFg->TabIndex = 4;
@@ -226,7 +226,7 @@ namespace MotionDetection {
       // 
       this->picBg->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
       this->picBg->Location = System::Drawing::Point(465, 15);
-      this->picBg->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->picBg->Margin = System::Windows::Forms::Padding(4);
       this->picBg->Name = L"picBg";
       this->picBg->Size = System::Drawing::Size(426, 295);
       this->picBg->TabIndex = 5;
@@ -236,7 +236,7 @@ namespace MotionDetection {
       // 
       this->picInput->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
       this->picInput->Location = System::Drawing::Point(16, 15);
-      this->picInput->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->picInput->Margin = System::Windows::Forms::Padding(4);
       this->picInput->Name = L"picInput";
       this->picInput->Size = System::Drawing::Size(426, 295);
       this->picInput->TabIndex = 6;
@@ -245,7 +245,7 @@ namespace MotionDetection {
       // btvStart
       // 
       this->btvStart->Location = System::Drawing::Point(921, 124);
-      this->btvStart->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->btvStart->Margin = System::Windows::Forms::Padding(4);
       this->btvStart->Name = L"btvStart";
       this->btvStart->Size = System::Drawing::Size(100, 36);
       this->btvStart->TabIndex = 12;
@@ -257,22 +257,22 @@ namespace MotionDetection {
       // 
       this->dlgOpenVideo->FileName = L"openFileDialog1";
       // 
-      // btStop
+      // btPause
       // 
-      this->btStop->Location = System::Drawing::Point(921, 167);
-      this->btStop->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
-      this->btStop->Name = L"btStop";
-      this->btStop->Size = System::Drawing::Size(100, 36);
-      this->btStop->TabIndex = 12;
-      this->btStop->Text = L"Stop";
-      this->btStop->UseVisualStyleBackColor = true;
-      this->btStop->Click += gcnew System::EventHandler(this, &MyForm::btvStop_Click);
+      this->btPause->Location = System::Drawing::Point(921, 167);
+      this->btPause->Margin = System::Windows::Forms::Padding(4);
+      this->btPause->Name = L"btPause";
+      this->btPause->Size = System::Drawing::Size(100, 36);
+      this->btPause->TabIndex = 12;
+      this->btPause->Text = L"Pause";
+      this->btPause->UseVisualStyleBackColor = true;
+      this->btPause->Click += gcnew System::EventHandler(this, &MyForm::btPause_Click);
       // 
       // ckbox_sFrame
       // 
       this->ckbox_sFrame->AutoSize = true;
       this->ckbox_sFrame->Location = System::Drawing::Point(921, 593);
-      this->ckbox_sFrame->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->ckbox_sFrame->Margin = System::Windows::Forms::Padding(4);
       this->ckbox_sFrame->Name = L"ckbox_sFrame";
       this->ckbox_sFrame->Size = System::Drawing::Size(106, 21);
       this->ckbox_sFrame->TabIndex = 13;
@@ -288,7 +288,7 @@ namespace MotionDetection {
       // btMask
       // 
       this->btMask->Location = System::Drawing::Point(921, 80);
-      this->btMask->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->btMask->Margin = System::Windows::Forms::Padding(4);
       this->btMask->Name = L"btMask";
       this->btMask->Size = System::Drawing::Size(100, 36);
       this->btMask->TabIndex = 14;
@@ -300,21 +300,10 @@ namespace MotionDetection {
       // 
       this->dialogOpenMask->FileName = L"openMaskdialog";
       // 
-      // btResume
-      // 
-      this->btResume->Location = System::Drawing::Point(921, 210);
-      this->btResume->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
-      this->btResume->Name = L"btResume";
-      this->btResume->Size = System::Drawing::Size(100, 36);
-      this->btResume->TabIndex = 15;
-      this->btResume->Text = L"Resume";
-      this->btResume->UseVisualStyleBackColor = true;
-      this->btResume->Click += gcnew System::EventHandler(this, &MyForm::btResume_Click);
-      // 
       // txtFuzzy
       // 
       this->txtFuzzy->Location = System::Drawing::Point(921, 546);
-      this->txtFuzzy->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->txtFuzzy->Margin = System::Windows::Forms::Padding(4);
       this->txtFuzzy->Name = L"txtFuzzy";
       this->txtFuzzy->Size = System::Drawing::Size(100, 22);
       this->txtFuzzy->TabIndex = 16;
@@ -322,7 +311,7 @@ namespace MotionDetection {
       // btLoadChart
       // 
       this->btLoadChart->Location = System::Drawing::Point(921, 503);
-      this->btLoadChart->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->btLoadChart->Margin = System::Windows::Forms::Padding(4);
       this->btLoadChart->Name = L"btLoadChart";
       this->btLoadChart->Size = System::Drawing::Size(100, 36);
       this->btLoadChart->TabIndex = 18;
@@ -337,10 +326,9 @@ namespace MotionDetection {
       this->ClientSize = System::Drawing::Size(1045, 655);
       this->Controls->Add(this->btLoadChart);
       this->Controls->Add(this->txtFuzzy);
-      this->Controls->Add(this->btResume);
       this->Controls->Add(this->btMask);
       this->Controls->Add(this->ckbox_sFrame);
-      this->Controls->Add(this->btStop);
+      this->Controls->Add(this->btPause);
       this->Controls->Add(this->btvStart);
       this->Controls->Add(this->label4);
       this->Controls->Add(this->label3);
@@ -352,7 +340,7 @@ namespace MotionDetection {
       this->Controls->Add(this->picBg);
       this->Controls->Add(this->picInput);
       this->Controls->Add(this->btvOpen);
-      this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+      this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"MyForm";
       this->Text = L"Motion Detection";
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picOutput))->EndInit();
@@ -369,10 +357,9 @@ namespace MotionDetection {
   private: System::Void btvOpen_Click(System::Object^  sender, System::EventArgs^  e);
   private: System::Void btvStart_Click(System::Object^  sender, System::EventArgs^  e);
   private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e);
-  private: System::Void btvStop_Click(System::Object^  sender, System::EventArgs^  e);
+  private: System::Void btPause_Click(System::Object^  sender, System::EventArgs^  e);
   private: System::Void ckbox_sFrame_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
   private: System::Void btMask_Click(System::Object^  sender, System::EventArgs^  e);
-  private: System::Void btResume_Click(System::Object^  sender, System::EventArgs^  e);
   private: System::Void btLoadChart_Click(System::Object^  sender, System::EventArgs^  e);
 };
 }

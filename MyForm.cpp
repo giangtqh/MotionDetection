@@ -576,9 +576,19 @@ System::Void MyForm::timer1_Tick(System::Object^  sender, System::EventArgs^  e)
   }
   catch (...){}
 }
-System::Void MyForm::btvStop_Click(System::Object^  sender, System::EventArgs^  e) {
-    cout << "Stop processing." << endl;
-    timer1->Stop();
+System::Void MyForm::btPause_Click(System::Object^  sender, System::EventArgs^  e) {
+  static bool isPause = true;
+  if (isPause) {
+      timer1->Stop();
+      btPause->Text = "Resume";
+      cout << "Pause processing." << endl;
+    }
+    else {
+      timer1->Start();
+      btPause->Text = "Pause";
+      cout << "Resume processing." << endl;
+    }
+    isPause = !isPause;
 }
 System::Void MyForm::ckbox_sFrame_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
   gIsSaveFrame = !gIsSaveFrame;
@@ -595,10 +605,10 @@ System::Void MyForm::btMask_Click(System::Object^  sender, System::EventArgs^  e
   MaskFilename = (char*)Marshal::StringToHGlobalAnsi(dialogOpenMask->FileName).ToPointer();
   cout << "Mask file: " << MaskFilename << endl;
 }
-System::Void MyForm::btResume_Click(System::Object^  sender, System::EventArgs^  e) {
-  cout << "Resume processing" << endl;
-  timer1->Start();
-}
+//System::Void MyForm::btResume_Click(System::Object^  sender, System::EventArgs^  e) {
+//  cout << "Resume processing" << endl;
+//  timer1->Start();
+//}
 System::Void MyForm::btLoadChart_Click(System::Object^  sender, System::EventArgs^  e) {
   cout << "Generate graph" << endl;
   Form2^ f2 = gcnew Form2();
