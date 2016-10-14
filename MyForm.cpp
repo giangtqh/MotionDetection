@@ -22,7 +22,8 @@ namespace MotionDetection {
   ofstream percentage;
   ofstream dist;
   Mat object_bg;
-
+  bool isPause = false;
+  bool isDebug = false;
   bool is_BuildBGModel = false;
   bool gIsSaveFrame = false;
   double g_frameNumbers = 0;
@@ -109,9 +110,9 @@ namespace MotionDetection {
     {
       for (int x = 0; x < cflowmap.cols; x += step)
       {
-        const Point2f& fxy = flow.at<Point2f>(y, x);
-        line(cflowmap, cv::Point(x, y), cv::Point(cvRound(x + fxy.x), cvRound(y + fxy.y)), color);
-        circle(cflowmap, cv::Point(cvRound(x + fxy.x), cvRound(y + fxy.y)), 1, color, -1);
+        const Point2f& p = flow.at<Point2f>(y, x);
+        line(cflowmap, cv::Point(x, y), cv::Point(cvRound(x + p.x), cvRound(y + p.y)), color);
+        circle(cflowmap, cv::Point(cvRound(x + p.x), cvRound(y + p.y)), 1, color, -1);
       }
     }
   }
@@ -119,18 +120,16 @@ namespace MotionDetection {
   double MyForm::calcDistance(const Mat& flow, Mat& cflowmap, int step)
   {
     double distance = 0, sum = 0;
-	int cnt = 0;
     for (int y = 0; y < cflowmap.rows; y += step)
     {
       for (int x = 0; x < cflowmap.cols; x += step)
       {
-        const Point2f& fxy = flow.at<Point2f>(y, x);
-        distance = sqrt(fxy.x*fxy.x + fxy.y*fxy.y);
+        const Point2f& p = flow.at<Point2f>(y, x);
+        distance = sqrt(p.x*p.x + p.y*p.y);
         sum += distance;
-		cnt++;
       }
     }
-    return((double)sum / (cnt));
+    return((double)sum / (cflowmap.rows*cflowmap.cols/(step*step)));
   }
 
   double MyForm::PixelPercentage(const Mat& img)
@@ -227,20 +226,17 @@ namespace MotionDetection {
 
   int MyForm::Fuzzy(const double& speed_est, const double& density_est)
   {
-    //cout << "speed_est: " << speed_est << ", density_est: " << density_est << endl;
     double fsp1 = std::max<double>(0, std::min<double>(1, (speed_est - ksp2) / (ksp1 - ksp2)));
     double fsp2 = std::max<double>(0, std::min<double>((speed_est - ksp1) / (ksp2 - ksp1), (speed_est - ksp3) / (ksp2 - ksp3)));
     double fsp3 = std::max<double>(0, std::min<double>((speed_est - ksp2) / (ksp3 - ksp2), (speed_est - ksp4) / (ksp3 - ksp4)));
     double fsp4 = std::max<double>(0, std::min<double>((speed_est - ksp3) / (ksp4 - ksp3), (speed_est - ksp5) / (ksp4 - ksp5)));
     double fsp5 = std::max<double>(0, std::min<double>(1, (speed_est - ksp4) / (ksp5 - ksp4)));
-    //cout << fsp1 << " " << fsp2 << " " << fsp3 << " " << fsp4 << " " << fsp5 << endl;
 
     double fds1 = std::max<double>(0, std::min<double>(1, (density_est - kds2) / (kds1 - kds2)));
     double fds2 = std::max<double>(0, std::min<double>((density_est - kds1) / (kds2 - kds1), (density_est - kds3) / (kds2 - kds3)));
     double fds3 = std::max<double>(0, std::min<double>((density_est - kds2) / (kds3 - kds2), (density_est - kds4) / (kds3 - kds4)));
     double fds4 = std::max<double>(0, std::min<double>((density_est - kds3) / (kds4 - kds3), (density_est - kds5) / (kds4 - kds5)));
     double fds5 = std::max<double>(0, std::min<double>(1, (density_est - kds4) / (kds5 - kds4)));
-    //cout << fds1 << " " << fds2 << " " << fds3 << " " << fds4 << " " << fds5 << endl;
 
     std::vector<double> vecA{ fds1*fsp1, fds1*fsp2, fds2*fsp1 };
     std::vector<double> vecB{ fds1*fsp3, fds1*fsp4, fds1*fsp5, fds2*fsp4, fds2*fsp5, fds3*fsp4 };
@@ -248,13 +244,6 @@ namespace MotionDetection {
     std::vector<double> vecD{ fds4*fsp2, fds5*fsp2, fds5*fsp3 };
     std::vector<double> vecE{ fds3*fsp1, fds4*fsp1, fds5*fsp1 };
     std::vector<double> vecX{ fds3*fsp5, fds4*fsp5, fds5*fsp5, fds5*fsp4 };
-    //cout << "Element of vectors: " << endl;
-    //printVec(vecA);
-    //printVec(vecB);
-    //printVec(vecC);
-    //printVec(vecD);
-    //printVec(vecE);
-    //printVec(vecX);
 
     double A = *std::max_element(vecA.begin(), vecA.end());
     double B = *std::max_element(vecB.begin(), vecB.end());
@@ -264,8 +253,21 @@ namespace MotionDetection {
     double X = *std::max_element(vecX.begin(), vecX.end());
     std::vector<double> vec_max{ A, B, C, D, E, X};
     auto max_value = std::max_element(vec_max.begin(), vec_max.end());
-    //cout << "Max of each vector, A: " << A << ",B: " << B << ",C :" << C << ",D: " << D << ", E: " << E << endl;
-    //cout << "MAX of max: " << *max_value << endl;
+    if (isDebug)
+    {
+      cout << "speed_est: " << speed_est << ", density_est: " << density_est << endl;
+      cout << "flogic sp: " << fsp1 << " " << fsp2 << " " << fsp3 << " " << fsp4 << " " << fsp5 << endl;
+      cout << "flogic ds: " << fds1 << " " << fds2 << " " << fds3 << " " << fds4 << " " << fds5 << endl;
+      cout << "Element of vectors: " << endl;
+      printVec(vecA);
+      printVec(vecB);
+      printVec(vecC);
+      printVec(vecD);
+      printVec(vecE);
+      printVec(vecX);
+      cout << "Max of each vector, A: " << A << ", B: " << B << ", C :" << C << ", D: " << D << ", E: " << E << ", X: "<< X << endl;
+      cout << "MAX of max: " << *max_value << endl;
+    }
     return std::distance(std::begin(vec_max), max_value);
   }
 
@@ -326,22 +328,25 @@ namespace MotionDetection {
       calcOpticalFlowFarneback(frame1Mask, frame2Mask, flow, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
 
       int step = 4;
+      double sum = 0;
       for (int y = 0; y < frameMask.rows; y += step)
       {
         for (int x = 0; x < frameMask.cols; x += step)
         {
-          const Point2f& fxy = flow.at<Point2f>(y, x);
-          line(frameMask, cv::Point(x, y), cv::Point(cvRound(x + fxy.x), cvRound(y + fxy.y)), CV_RGB(0, 255, 0));
-          circle(frameMask, cv::Point(cvRound(x + fxy.x), cvRound(y + fxy.y)), 1, CV_RGB(0, 255, 0), -1);
+          const Point2f& p = flow.at<Point2f>(y, x);
+          sum += sqrt(p.x*p.x + p.y*p.y);
+          line(frameMask, cv::Point(x, y), cv::Point(cvRound(x + p.x), cvRound(y + p.y)), CV_RGB(0, 255, 0));
+          circle(frameMask, cv::Point(cvRound(x + p.x), cvRound(y + p.y)), 1, CV_RGB(0, 255, 0), -1);
         }
       }
+      double sp = sum / (frameMask.rows*frameMask.cols / (step*step));  //origin formular for speed calculation
 
       //drawOptFlowMap(flow, frameMask, 4, CV_RGB(0, 255, 0)); //replaced by two for loops above
       highlightObjects(frameMask, frame1Mask, frameMask);
       DrawCVImage(picOutput, frameMask, false);
 
       double ds = PixelPercentage(frame1Mask);
-      double sp = calcDistance(flow, frameMask, 4);
+      //double sp = calcDistance(flow, frameMask, 4);   //remove for optimize
      
       // Write values to file
       percentage << ds << endl;
@@ -484,7 +489,7 @@ namespace MotionDetection {
       //double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
       //cout << "Process time/frame: " << elapsed_secs << endl;
     }
-  }
+  }  // end origin_motion_processing
 
   const std::string& MyForm::StateToString(int state) {
     switch (state)
@@ -494,6 +499,7 @@ namespace MotionDetection {
     case 2: return kNormal;
     case 3: return kCrowded;
     case 4: return kStop;
+    case 5:
     default: return kNA;
     }
   }
@@ -550,16 +556,12 @@ System::Void MyForm::btvStart_Click(System::Object^  sender, System::EventArgs^ 
   }
   else
   {
+    btPause->Text = "Pause";
+    isPause = false;
     build_background_model();
     percentage.open("percentage.txt", std::ios_base::out);
     dist.open("distance.txt", std::ios_base::out);
 #ifdef TIMER
-    //genGs();
-    //for (size_t i = 0; i < gs.size(); ++i) {
-    //  gs_sum += gs[i];
-    //}
-    //ds_in.reserve(1000);
-    //sp_in.reserve(1000);
     timer1->Start();
 #else
     origin_motion_processing();
@@ -579,23 +581,20 @@ System::Void MyForm::timer1_Tick(System::Object^  sender, System::EventArgs^  e)
   catch (...){}
 }
 System::Void MyForm::btPause_Click(System::Object^  sender, System::EventArgs^  e) {
-  static bool isPause = true;
-  if (isPause) {
-      timer1->Stop();
-      btPause->Text = "Resume";
-      cout << "Pause processing." << endl;
-    }
-    else {
-      timer1->Start();
-      btPause->Text = "Pause";
-      cout << "Resume processing." << endl;
-    }
-    isPause = !isPause;
+  isPause = !isPause;
+  isPause ? timer1->Stop() : timer1->Start();
+  btPause->Text = (isPause ? "Resume" : "Pause");
+  cout << (isPause ? "Pause\n" : "Resume\n");
 }
 System::Void MyForm::ckbox_sFrame_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
   gIsSaveFrame = !gIsSaveFrame;
   cout << (gIsSaveFrame ? "Save Frame is checked\n" : "Save Frame is unchecked\n");
 }
+System::Void MyForm::cboxEnDebug_CheckedChanged(System::Object^  sender, System::EventArgs^  e){
+  isDebug = !isDebug;
+  cout << (isDebug ? "Enable debuging\n" : "Disable debug.\n");
+}
+
 System::Void MyForm::btMask_Click(System::Object^  sender, System::EventArgs^  e) {
   cout << "Choose mask" << endl;
   dialogOpenMask->Filter = "Image Files (*.bmp, *.jpg)|*.bmp;*.jpg";

@@ -14,6 +14,7 @@ namespace MotionDetection {
   //these two parameters need to be verified
   extern double density_max;
   extern double speed_max;
+  extern bool isDebug;
   int old_state = -1;
 
   void genGs() {
@@ -72,6 +73,7 @@ namespace MotionDetection {
     gs.clear();
     genGs();
     gs_sum = std::accumulate(gs.begin(), gs.end(), 0.0);
+    isDebug = false;
   }
   Form2::~Form2()
   {

@@ -87,6 +87,7 @@ namespace MotionDetection {
 
   private: System::Windows::Forms::TextBox^  txtFuzzy;
   private: System::Windows::Forms::Button^  btLoadChart;
+  private: System::Windows::Forms::CheckBox^  cboxEnDebug;
 
   private: System::ComponentModel::IContainer^  components;
 
@@ -135,6 +136,7 @@ namespace MotionDetection {
       this->dialogOpenMask = (gcnew System::Windows::Forms::OpenFileDialog());
       this->txtFuzzy = (gcnew System::Windows::Forms::TextBox());
       this->btLoadChart = (gcnew System::Windows::Forms::Button());
+      this->cboxEnDebug = (gcnew System::Windows::Forms::CheckBox());
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picOutput))->BeginInit();
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picFg))->BeginInit();
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picBg))->BeginInit();
@@ -271,7 +273,7 @@ namespace MotionDetection {
       // ckbox_sFrame
       // 
       this->ckbox_sFrame->AutoSize = true;
-      this->ckbox_sFrame->Location = System::Drawing::Point(921, 593);
+      this->ckbox_sFrame->Location = System::Drawing::Point(921, 576);
       this->ckbox_sFrame->Margin = System::Windows::Forms::Padding(4);
       this->ckbox_sFrame->Name = L"ckbox_sFrame";
       this->ckbox_sFrame->Size = System::Drawing::Size(106, 21);
@@ -319,11 +321,24 @@ namespace MotionDetection {
       this->btLoadChart->UseVisualStyleBackColor = true;
       this->btLoadChart->Click += gcnew System::EventHandler(this, &MyForm::btLoadChart_Click);
       // 
+      // cboxEnDebug
+      // 
+      this->cboxEnDebug->AutoSize = true;
+      this->cboxEnDebug->Location = System::Drawing::Point(921, 605);
+      this->cboxEnDebug->Margin = System::Windows::Forms::Padding(4);
+      this->cboxEnDebug->Name = L"cboxEnDebug";
+      this->cboxEnDebug->Size = System::Drawing::Size(120, 21);
+      this->cboxEnDebug->TabIndex = 19;
+      this->cboxEnDebug->Text = L"Enable Debug";
+      this->cboxEnDebug->UseVisualStyleBackColor = true;
+      this->cboxEnDebug->CheckedChanged += gcnew System::EventHandler(this, &MyForm::cboxEnDebug_CheckedChanged);
+      // 
       // MyForm
       // 
       this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
       this->ClientSize = System::Drawing::Size(1045, 655);
+      this->Controls->Add(this->cboxEnDebug);
       this->Controls->Add(this->btLoadChart);
       this->Controls->Add(this->txtFuzzy);
       this->Controls->Add(this->btMask);
@@ -361,6 +376,7 @@ namespace MotionDetection {
   private: System::Void ckbox_sFrame_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
   private: System::Void btMask_Click(System::Object^  sender, System::EventArgs^  e);
   private: System::Void btLoadChart_Click(System::Object^  sender, System::EventArgs^  e);
+private: System::Void cboxEnDebug_CheckedChanged(System::Object^  sender, System::EventArgs^  e);
 };
 }
 
