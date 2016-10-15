@@ -48,8 +48,10 @@ namespace MotionDetection {
   double kds4 = 0.5;
   double kds5 = 0.6;
 
-  double density_max = 100;
-  double speed_max = 35;
+  const double kdensity_max = 100;
+  const double kspeed_max = 35;
+  double density_max = kdensity_max;
+  double speed_max = kspeed_max;
 
   const std::string kEmpty = "Empty";
   const std::string kOpen = "Open";
@@ -86,7 +88,7 @@ namespace MotionDetection {
     return(thresholdImage.data != NULL);
   }
 
-  bool MyForm::highlightObjects(const Mat& colorInput, Mat& mask, Mat& colorOutput)
+  bool MyForm::highlightObjects(const Mat& colorInput, const Mat& mask, Mat& colorOutput)
   {
     Mat channels[3];
     split(colorInput, channels);
@@ -117,7 +119,7 @@ namespace MotionDetection {
     }
   }
 
-  double MyForm::calcDistance(const Mat& flow, Mat& cflowmap, int step)
+  double MyForm::calcDistance(const Mat& flow, const Mat& cflowmap, int step)
   {
     double distance = 0, sum = 0;
     for (int y = 0; y < cflowmap.rows; y += step)
@@ -274,6 +276,13 @@ namespace MotionDetection {
   void MyForm::motion_processing()
   {
     //clock_t begin = clock();
+    if (txtSpMax->Text->Length != 0) {
+      System::String^ spMax_str = txtSpMax->Text;
+      speed_max = Convert::ToDouble(spMax_str);
+    }
+    else {
+      speed_max = kspeed_max;
+    }
     {
       cap.read(frame);
       if (frame.empty())
@@ -326,20 +335,24 @@ namespace MotionDetection {
       double poly_sigma = 1.5;
 
       calcOpticalFlowFarneback(frame1Mask, frame2Mask, flow, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
-
-      int step = 4;
+      
+      int step = 4, cnt = 0;
       double sum = 0;
       for (int y = 0; y < frameMask.rows; y += step)
       {
         for (int x = 0; x < frameMask.cols; x += step)
         {
           const Point2f& p = flow.at<Point2f>(y, x);
-          sum += sqrt(p.x*p.x + p.y*p.y);
+          if (frame1Mask.at<uchar>(y, x) == 0) {  // 0 is black
+            sum += sqrt(p.x*p.x + p.y*p.y);
+            cnt++;
+          }
           line(frameMask, cv::Point(x, y), cv::Point(cvRound(x + p.x), cvRound(y + p.y)), CV_RGB(0, 255, 0));
           circle(frameMask, cv::Point(cvRound(x + p.x), cvRound(y + p.y)), 1, CV_RGB(0, 255, 0), -1);
         }
       }
-      double sp = sum / (frameMask.rows*frameMask.cols / (step*step));  //origin formular for speed calculation
+      double sp = sum / cnt;
+      //cout << "CNT: " << cnt << " SUM: " << sum << " sp: " << sp << endl;
 
       //drawOptFlowMap(flow, frameMask, 4, CV_RGB(0, 255, 0)); //replaced by two for loops above
       highlightObjects(frameMask, frame1Mask, frameMask);

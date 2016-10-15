@@ -14,6 +14,8 @@ namespace MotionDetection {
   //these two parameters need to be verified
   extern double density_max;
   extern double speed_max;
+  double ds_max = 0, sp_max = 0;
+
   extern bool isDebug;
   int old_state = -1;
 
@@ -67,9 +69,9 @@ namespace MotionDetection {
       }
     }
     density.close();
-    double ds_max = *std::max_element(ds_in.begin(), ds_in.end());
-    double sp_max = *std::max_element(sp_in.begin(), sp_in.end());
-    cout << "Origin max value, ds_max = " << ds_max << ", sp_max = " << sp_max << endl;
+    ds_max = *std::max_element(ds_in.begin(), ds_in.end());
+    sp_max = *std::max_element(sp_in.begin(), sp_in.end());
+    cout << "Calcualte max value, ds_max = " << ds_max << ", sp_max = " << sp_max << endl;
     gs.clear();
     genGs();
     gs_sum = std::accumulate(gs.begin(), gs.end(), 0.0);
@@ -88,7 +90,7 @@ namespace MotionDetection {
   }
 
   System::Void Form2::btStart_Click(System::Object^  sender, System::EventArgs^  e) {
-    cout << "Start" << endl;
+    cout << "Draw graph" << endl;
     this->chart1->Series["Speed"]->Points->Clear();
     this->chart1->Series["Density"]->Points->Clear();
     this->chart1->Series["State"]->Points->Clear();
@@ -126,6 +128,8 @@ namespace MotionDetection {
     double sp_max_estimate = *std::max_element(sp_out.begin(), sp_out.end());
 
     // Normalize
+    //density_max = ds_max;
+    //speed_max = sp_max;
     //double ds_max = *std::max_element(ds_out.begin(), ds_out.end());
     //double sp_max = *std::max_element(sp_out.begin(), sp_out.end());
     //cout << "ds_max: " << ds_max << ", sp_max: " << sp_max << endl;
@@ -138,11 +142,8 @@ namespace MotionDetection {
 
     // Apply Fuzzy
     for (size_t i = 0; i < ds_out.size(); ++i) {
-      int new_state = mForm.Fuzzy(sp_out[i], ds_out[i]);
-      if (new_state != old_state) {
-        old_state = new_state;
-        this->chart1->Series["State"]->Points->AddXY(i, old_state);
-      }
+      int state = mForm.Fuzzy(sp_out[i], ds_out[i]);
+      this->chart1->Series["State"]->Points->AddXY(i, state);
       this->chart1->Series["Density"]->Points->AddY(ds_out[i]);
       this->chart1->Series["Speed"]->Points->AddY(sp_out[i]);
     }
@@ -178,8 +179,9 @@ System::Void Form2::btSpeed_Click(System::Object^  sender, System::EventArgs^  e
       sp_in.push_back(sp);
     }
   }
-  
   dist.close();
+  sp_max = *std::max_element(sp_in.begin(), sp_in.end());
+  cout << "Calcualte sp_max = " << sp_max << endl;
 }
 System::Void Form2::btDensity_Click(System::Object^  sender, System::EventArgs^  e) {
   cout << "Choose percentage file" << endl;
@@ -199,6 +201,8 @@ System::Void Form2::btDensity_Click(System::Object^  sender, System::EventArgs^ 
     }
   }
   perc.close();
+  ds_max = *std::max_element(ds_in.begin(), ds_in.end());
+  cout << "Calcualte ds_max = " << ds_max << endl;
 }
 
 }  // end namespace

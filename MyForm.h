@@ -88,6 +88,8 @@ namespace MotionDetection {
   private: System::Windows::Forms::TextBox^  txtFuzzy;
   private: System::Windows::Forms::Button^  btLoadChart;
   private: System::Windows::Forms::CheckBox^  cboxEnDebug;
+  private: System::Windows::Forms::TextBox^  txtSpMax;
+  private: System::Windows::Forms::Label^  label6;
 
   private: System::ComponentModel::IContainer^  components;
 
@@ -104,9 +106,9 @@ namespace MotionDetection {
     void DrawCVImage(System::Windows::Forms::Control^ control, cv::Mat& colorImage, bool isGray);
     void SaveImage(const char*& filenameFormat, unsigned int& indexNumber, Mat& img);
     double PixelPercentage(const Mat& img);
-    double calcDistance(const Mat& flow, Mat& cflowmap, int step);
+    double calcDistance(const Mat& flow, const Mat& cflowmap, int step);
     void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step, const Scalar& color);
-    bool highlightObjects(const Mat& colorInput, Mat& mask, Mat& colorOutput);
+    bool highlightObjects(const Mat& colorInput, const Mat& mask, Mat& colorOutput);
     const std::string& MyForm::StateToString(int state);
 
 #pragma region Windows Form Designer generated code
@@ -137,6 +139,8 @@ namespace MotionDetection {
       this->txtFuzzy = (gcnew System::Windows::Forms::TextBox());
       this->btLoadChart = (gcnew System::Windows::Forms::Button());
       this->cboxEnDebug = (gcnew System::Windows::Forms::CheckBox());
+      this->txtSpMax = (gcnew System::Windows::Forms::TextBox());
+      this->label6 = (gcnew System::Windows::Forms::Label());
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picOutput))->BeginInit();
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picFg))->BeginInit();
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picBg))->BeginInit();
@@ -145,10 +149,9 @@ namespace MotionDetection {
       // 
       // btvOpen
       // 
-      this->btvOpen->Location = System::Drawing::Point(921, 37);
-      this->btvOpen->Margin = System::Windows::Forms::Padding(4);
+      this->btvOpen->Location = System::Drawing::Point(691, 30);
       this->btvOpen->Name = L"btvOpen";
-      this->btvOpen->Size = System::Drawing::Size(100, 36);
+      this->btvOpen->Size = System::Drawing::Size(75, 29);
       this->btvOpen->TabIndex = 0;
       this->btvOpen->Text = L"Open Video";
       this->btvOpen->UseVisualStyleBackColor = true;
@@ -157,99 +160,89 @@ namespace MotionDetection {
       // label4
       // 
       this->label4->AutoSize = true;
-      this->label4->Location = System::Drawing::Point(612, 633);
-      this->label4->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+      this->label4->Location = System::Drawing::Point(459, 514);
       this->label4->Name = L"label4";
-      this->label4->Size = System::Drawing::Size(51, 17);
+      this->label4->Size = System::Drawing::Size(39, 13);
       this->label4->TabIndex = 7;
       this->label4->Text = L"Output";
       // 
       // label3
       // 
       this->label3->AutoSize = true;
-      this->label3->Location = System::Drawing::Point(163, 633);
-      this->label3->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+      this->label3->Location = System::Drawing::Point(122, 514);
       this->label3->Name = L"label3";
-      this->label3->Size = System::Drawing::Size(82, 17);
+      this->label3->Size = System::Drawing::Size(61, 13);
       this->label3->TabIndex = 8;
       this->label3->Text = L"Foreground";
       // 
       // label5
       // 
       this->label5->AutoSize = true;
-      this->label5->Location = System::Drawing::Point(945, 17);
-      this->label5->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+      this->label5->Location = System::Drawing::Point(709, 14);
       this->label5->Name = L"label5";
-      this->label5->Size = System::Drawing::Size(44, 17);
+      this->label5->Size = System::Drawing::Size(34, 13);
       this->label5->TabIndex = 9;
       this->label5->Text = L"Video";
       // 
       // label2
       // 
       this->label2->AutoSize = true;
-      this->label2->Location = System::Drawing::Point(612, 314);
-      this->label2->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+      this->label2->Location = System::Drawing::Point(459, 255);
       this->label2->Name = L"label2";
-      this->label2->Size = System::Drawing::Size(84, 17);
+      this->label2->Size = System::Drawing::Size(65, 13);
       this->label2->TabIndex = 10;
       this->label2->Text = L"Background";
       // 
       // label1
       // 
       this->label1->AutoSize = true;
-      this->label1->Location = System::Drawing::Point(187, 314);
-      this->label1->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
+      this->label1->Location = System::Drawing::Point(140, 255);
       this->label1->Name = L"label1";
-      this->label1->Size = System::Drawing::Size(39, 17);
+      this->label1->Size = System::Drawing::Size(31, 13);
       this->label1->TabIndex = 11;
       this->label1->Text = L"Input";
       // 
       // picOutput
       // 
       this->picOutput->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-      this->picOutput->Location = System::Drawing::Point(465, 334);
-      this->picOutput->Margin = System::Windows::Forms::Padding(4);
+      this->picOutput->Location = System::Drawing::Point(349, 271);
       this->picOutput->Name = L"picOutput";
-      this->picOutput->Size = System::Drawing::Size(426, 295);
+      this->picOutput->Size = System::Drawing::Size(320, 240);
       this->picOutput->TabIndex = 3;
       this->picOutput->TabStop = false;
       // 
       // picFg
       // 
       this->picFg->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-      this->picFg->Location = System::Drawing::Point(16, 334);
-      this->picFg->Margin = System::Windows::Forms::Padding(4);
+      this->picFg->Location = System::Drawing::Point(12, 271);
       this->picFg->Name = L"picFg";
-      this->picFg->Size = System::Drawing::Size(426, 295);
+      this->picFg->Size = System::Drawing::Size(320, 240);
       this->picFg->TabIndex = 4;
       this->picFg->TabStop = false;
       // 
       // picBg
       // 
       this->picBg->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-      this->picBg->Location = System::Drawing::Point(465, 15);
-      this->picBg->Margin = System::Windows::Forms::Padding(4);
+      this->picBg->Location = System::Drawing::Point(349, 12);
       this->picBg->Name = L"picBg";
-      this->picBg->Size = System::Drawing::Size(426, 295);
+      this->picBg->Size = System::Drawing::Size(320, 240);
       this->picBg->TabIndex = 5;
       this->picBg->TabStop = false;
       // 
       // picInput
       // 
       this->picInput->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-      this->picInput->Location = System::Drawing::Point(16, 15);
-      this->picInput->Margin = System::Windows::Forms::Padding(4);
+      this->picInput->Location = System::Drawing::Point(12, 12);
       this->picInput->Name = L"picInput";
-      this->picInput->Size = System::Drawing::Size(426, 295);
+      this->picInput->Size = System::Drawing::Size(320, 240);
       this->picInput->TabIndex = 6;
       this->picInput->TabStop = false;
       // 
       // btvStart
       // 
-      this->btvStart->Location = System::Drawing::Point(921, 124);
-      this->btvStart->Margin = System::Windows::Forms::Padding(4);
+      this->btvStart->Location = System::Drawing::Point(691, 101);
       this->btvStart->Name = L"btvStart";
-      this->btvStart->Size = System::Drawing::Size(100, 36);
+      this->btvStart->Size = System::Drawing::Size(75, 29);
       this->btvStart->TabIndex = 12;
       this->btvStart->Text = L"Start";
       this->btvStart->UseVisualStyleBackColor = true;
@@ -261,10 +254,9 @@ namespace MotionDetection {
       // 
       // btPause
       // 
-      this->btPause->Location = System::Drawing::Point(921, 167);
-      this->btPause->Margin = System::Windows::Forms::Padding(4);
+      this->btPause->Location = System::Drawing::Point(691, 136);
       this->btPause->Name = L"btPause";
-      this->btPause->Size = System::Drawing::Size(100, 36);
+      this->btPause->Size = System::Drawing::Size(75, 29);
       this->btPause->TabIndex = 12;
       this->btPause->Text = L"Pause";
       this->btPause->UseVisualStyleBackColor = true;
@@ -273,10 +265,9 @@ namespace MotionDetection {
       // ckbox_sFrame
       // 
       this->ckbox_sFrame->AutoSize = true;
-      this->ckbox_sFrame->Location = System::Drawing::Point(921, 576);
-      this->ckbox_sFrame->Margin = System::Windows::Forms::Padding(4);
+      this->ckbox_sFrame->Location = System::Drawing::Point(691, 468);
       this->ckbox_sFrame->Name = L"ckbox_sFrame";
-      this->ckbox_sFrame->Size = System::Drawing::Size(106, 21);
+      this->ckbox_sFrame->Size = System::Drawing::Size(83, 17);
       this->ckbox_sFrame->TabIndex = 13;
       this->ckbox_sFrame->Text = L"Save Frame";
       this->ckbox_sFrame->UseVisualStyleBackColor = true;
@@ -289,10 +280,9 @@ namespace MotionDetection {
       // 
       // btMask
       // 
-      this->btMask->Location = System::Drawing::Point(921, 80);
-      this->btMask->Margin = System::Windows::Forms::Padding(4);
+      this->btMask->Location = System::Drawing::Point(691, 65);
       this->btMask->Name = L"btMask";
-      this->btMask->Size = System::Drawing::Size(100, 36);
+      this->btMask->Size = System::Drawing::Size(75, 29);
       this->btMask->TabIndex = 14;
       this->btMask->Text = L"Mask";
       this->btMask->UseVisualStyleBackColor = true;
@@ -304,18 +294,16 @@ namespace MotionDetection {
       // 
       // txtFuzzy
       // 
-      this->txtFuzzy->Location = System::Drawing::Point(921, 546);
-      this->txtFuzzy->Margin = System::Windows::Forms::Padding(4);
+      this->txtFuzzy->Location = System::Drawing::Point(691, 444);
       this->txtFuzzy->Name = L"txtFuzzy";
-      this->txtFuzzy->Size = System::Drawing::Size(100, 22);
+      this->txtFuzzy->Size = System::Drawing::Size(75, 20);
       this->txtFuzzy->TabIndex = 16;
       // 
       // btLoadChart
       // 
-      this->btLoadChart->Location = System::Drawing::Point(921, 503);
-      this->btLoadChart->Margin = System::Windows::Forms::Padding(4);
+      this->btLoadChart->Location = System::Drawing::Point(691, 409);
       this->btLoadChart->Name = L"btLoadChart";
-      this->btLoadChart->Size = System::Drawing::Size(100, 36);
+      this->btLoadChart->Size = System::Drawing::Size(75, 29);
       this->btLoadChart->TabIndex = 18;
       this->btLoadChart->Text = L"Load chart";
       this->btLoadChart->UseVisualStyleBackColor = true;
@@ -324,20 +312,37 @@ namespace MotionDetection {
       // cboxEnDebug
       // 
       this->cboxEnDebug->AutoSize = true;
-      this->cboxEnDebug->Location = System::Drawing::Point(921, 605);
-      this->cboxEnDebug->Margin = System::Windows::Forms::Padding(4);
+      this->cboxEnDebug->Location = System::Drawing::Point(691, 492);
       this->cboxEnDebug->Name = L"cboxEnDebug";
-      this->cboxEnDebug->Size = System::Drawing::Size(120, 21);
+      this->cboxEnDebug->Size = System::Drawing::Size(94, 17);
       this->cboxEnDebug->TabIndex = 19;
       this->cboxEnDebug->Text = L"Enable Debug";
       this->cboxEnDebug->UseVisualStyleBackColor = true;
       this->cboxEnDebug->CheckedChanged += gcnew System::EventHandler(this, &MyForm::cboxEnDebug_CheckedChanged);
       // 
+      // txtSpMax
+      // 
+      this->txtSpMax->Location = System::Drawing::Point(691, 383);
+      this->txtSpMax->Name = L"txtSpMax";
+      this->txtSpMax->Size = System::Drawing::Size(75, 20);
+      this->txtSpMax->TabIndex = 20;
+      // 
+      // label6
+      // 
+      this->label6->AutoSize = true;
+      this->label6->Location = System::Drawing::Point(688, 367);
+      this->label6->Name = L"label6";
+      this->label6->Size = System::Drawing::Size(58, 13);
+      this->label6->TabIndex = 21;
+      this->label6->Text = L"SpeedMax";
+      // 
       // MyForm
       // 
-      this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
+      this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-      this->ClientSize = System::Drawing::Size(1045, 655);
+      this->ClientSize = System::Drawing::Size(784, 532);
+      this->Controls->Add(this->label6);
+      this->Controls->Add(this->txtSpMax);
       this->Controls->Add(this->cboxEnDebug);
       this->Controls->Add(this->btLoadChart);
       this->Controls->Add(this->txtFuzzy);
@@ -355,7 +360,6 @@ namespace MotionDetection {
       this->Controls->Add(this->picBg);
       this->Controls->Add(this->picInput);
       this->Controls->Add(this->btvOpen);
-      this->Margin = System::Windows::Forms::Padding(4);
       this->Name = L"MyForm";
       this->Text = L"Motion Detection";
       (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picOutput))->EndInit();
