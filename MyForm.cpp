@@ -27,6 +27,7 @@ namespace MotionDetection {
   bool is_BuildBGModel = false;
   bool gIsSaveFrame = false;
   double g_frameNumbers = 0;
+  double gFPS = 0;
 
   const char* cFgPath = "courseForeground/cfg-%06d.jpg";
   const char* outputPath = "OutputImage/%06d-out.jpg";
@@ -52,6 +53,7 @@ namespace MotionDetection {
   const double kspeed_max = 35;
   double density_max = kdensity_max;
   double speed_max = kspeed_max;
+  int kStep = 4, cnt = 0;
 
   const std::string kEmpty = "Empty";
   const std::string kOpen = "Open";
@@ -189,11 +191,26 @@ namespace MotionDetection {
       mask2 = imread(MaskFilename, CV_LOAD_IMAGE_GRAYSCALE);
       resize(mask1, mask1, cv::Size(320, 240));
       resize(mask2, mask2, cv::Size(320, 240));
+      cnt = 0;
+      for (int y = 0; y < mask2.rows; y += kStep)
+      {
+        for (int x = 0; x < mask2.cols; x += kStep)
+        {
+          if (mask2.at<uchar>(y, x) == 0) {  // 0 is black
+            cnt++;
+          }
+        }
+      }
+      cout << "CNT: " << cnt << endl;
 
       //Build Background Model
       bgsub = new BackgroundSubtractorMOG2(200, 100.0, false);
 
       g_frameNumbers = cap.get(CV_CAP_PROP_FRAME_COUNT);
+      gFPS = cap.get(CV_CAP_PROP_FPS);
+      cout << "NbFrames: " << g_frameNumbers << " , FPS: " << gFPS << endl;
+      double duration = g_frameNumbers / gFPS;
+      cout << "Duration(seconds): " << duration << endl;
       for (int frameCount = 1; frameCount <= g_frameNumbers; ++frameCount)
       {
         //Lay frame
@@ -209,7 +226,7 @@ namespace MotionDetection {
         //Tach foreground va cap nhat mo hinh background
         bgsub->operator()(resizeFrame, fg, 0.02);
         if (0 == (frameCount % 50))
-          cout << "Da them frame so " << frameCount << " vao ham Background Subtraction" << endl;
+          cout << "Added " << frameCount << " frames to BackgroundSubtraction function" << endl;
       }
 
       cap.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
@@ -336,23 +353,21 @@ namespace MotionDetection {
 
       calcOpticalFlowFarneback(frame1Mask, frame2Mask, flow, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
       
-      int step = 4, cnt = 0;
       double sum = 0;
-      for (int y = 0; y < frameMask.rows; y += step)
+      for (int y = 0; y < frameMask.rows; y += kStep)
       {
-        for (int x = 0; x < frameMask.cols; x += step)
+        for (int x = 0; x < frameMask.cols; x += kStep)
         {
           const Point2f& p = flow.at<Point2f>(y, x);
-          if (frame1Mask.at<uchar>(y, x) == 0) {  // 0 is black
+          if (mask2.at<uchar>(y, x) == 0) {  // 0 is black
             sum += sqrt(p.x*p.x + p.y*p.y);
-            cnt++;
           }
           line(frameMask, cv::Point(x, y), cv::Point(cvRound(x + p.x), cvRound(y + p.y)), CV_RGB(0, 255, 0));
           circle(frameMask, cv::Point(cvRound(x + p.x), cvRound(y + p.y)), 1, CV_RGB(0, 255, 0), -1);
         }
       }
-      double sp = sum / cnt;
-      //cout << "CNT: " << cnt << " SUM: " << sum << " sp: " << sp << endl;
+      double sp = (sum * gFPS) / cnt;
+      //cout << " SUM: " << sum << " sp: " << sp << endl;
 
       //drawOptFlowMap(flow, frameMask, 4, CV_RGB(0, 255, 0)); //replaced by two for loops above
       highlightObjects(frameMask, frame1Mask, frameMask);
@@ -625,6 +640,13 @@ System::Void MyForm::btMask_Click(System::Object^  sender, System::EventArgs^  e
 //}
 System::Void MyForm::btLoadChart_Click(System::Object^  sender, System::EventArgs^  e) {
   cout << "Generate graph" << endl;
+  if (txtSpMax->Text->Length != 0) {
+    System::String^ spMax_str = txtSpMax->Text;
+    speed_max = Convert::ToDouble(spMax_str);
+  }
+  else {
+    speed_max = kspeed_max;
+  }
   Form2^ f2 = gcnew Form2();
   f2->ShowDialog();
 }
